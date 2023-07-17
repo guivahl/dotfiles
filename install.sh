@@ -3,25 +3,23 @@ if [ ! -f ~/.bash_profile ]; then
   touch ~/.bash_profile
 fi
 
-if [ ! -f ~/.ssh/id_rsa.pub ]; then
-  echo "No id_rsa.pub found. This is used to authenticate with Github/Gitlab. Let's generate a new key now."
-  read -p "Enter your email address on Github: " github_email
-  ssh-keygen -t rsa -b 4096 -C "$github_email"
-
-  echo ""
-  echo "Copy the text below and upload to https://github.com/settings/ssh/new:"
-  echo ""
-  cat ~/.ssh/id_rsa.pub
-  echo ""
-  read -n 1 -s -r -p "Press any key to continue"
+if [ -z "$(git config --global user.email)" ]; then
+    echo "Git email not found."
+    read -p "Enter your email address on Github: " github_email
+    git config --global user.email "$github_email"
 fi
 
-if [ -d ~/.dotfiles ]
-then
+if [ -z "$(git config --global user.name)" ]; then
+    echo "Git name not found."
+    read -p "Enter your name address on Github: " github_name
+    git config --global user.name "$github_name"
+fi
+
+if [ -d ~/.dotfiles ]; then
   LAST_DIR=$(pwd)
   echo "Directory ~/.dotfiles found, rebasing..."
   cd ~/.dotfiles
-  git pull --rebase origin main
+  # git pull --rebase origin main
   cd $LAST_DIR
 else
   echo "Cloning git@github.com:guivahl/dotfiles.git into ~/.dotfiles"
@@ -30,12 +28,24 @@ fi
 
 export DOTFILES=~/.dotfiles
 
+source $DOTFILES/macos/install
+source $DOTFILES/git/setup
+source $DOTFILES/terminal/setup
+
+echo ""
+echo "Git setup..."
+git_setup
+
+echo ""
+echo "Terminal setup..."
+terminal_setup
+
+
 echo ""
 echo "Installing homebrew..."
 brew_setup
 
 echo ""
 echo "Installing MacOS software... "
-source $DOTFILES/macos
-install_macos
+macos_install
 

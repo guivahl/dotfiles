@@ -1,0 +1,70 @@
+
+function brew_setup() {
+  if command -v brew >/dev/null 2>&1; then
+    echo "Homebrew already installed!"
+  else
+    echo "Homebrew... "
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+    (echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> ~/.zprofile
+    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.bash_profile
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+    
+    brew update
+    echo "done!"
+  fi
+  
+  echo ""
+
+  export PATH="/opt/homebrew/bin:$PATH"
+  
+  INSTALLED_PACKAGE_LIST=$(brew list -1 --formula)
+  BREW_CASK_LIST=$(brew list -1 --cask)
+}
+
+function brew_install() {
+  echo -n "> $1: "
+  export HOMEBREW_NO_AUTO_UPDATE=1
+  echo $INSTALLED_PACKAGE_LIST | grep $1 &> /dev/null
+
+  if [[ $? -eq 1 ]]
+  then
+    echo "brew installing... "
+    if [[ -n $2 ]]; then
+      brew install $2 $1;
+    else
+      brew install $1;
+    fi
+    echo "done."
+    return 0
+  else
+    echo "already installed."
+    return 1
+  fi
+}
+
+function macos_install() {
+  brew_install wget
+  brew_install curl
+  brew_install tree
+  brew_install tmux
+  brew tap homebrew/cask-fonts
+  brew_install font-roboto-mono-nerd-font --cask
+  brew_install exa
+
+  brew tap homebrew/core
+  brew_install postgresql@15
+  echo 'export PATH="/opt/homebrew/opt/postgresql@15/bin:$PATH"' >> ~/.zshrc
+  brew services restart postgresql
+
+  brew_install redis
+  brew services restart redis
+
+  brew_install bash-completion
+  brew_install coreutils
+  
+  brew_install node
+  
+  brew_install spotify --cask
+  brew_install visual-studio-code --cask
+  brew_install discord --cask
+}

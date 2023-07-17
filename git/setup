@@ -1,0 +1,14 @@
+function git_setup () { 
+    if [ ! -f ~/.ssh/id_rsa.pub ]; then
+        echo "No id_rsa.pub found. This is used to authenticate with Github/Gitlab. Let's generate a new key now."
+        read -p "Enter your email address on Github: " github_email
+        ssh-keygen -t rsa -b 4096 -C "$github_email"
+
+        echo ""
+        echo "Copy the text below and upload to https://github.com/settings/ssh/new:"
+        echo ""
+        cat ~/.ssh/id_rsa.pub
+        echo ""
+        read -n 1 -s -r -p "Press any key to continue"
+    fi
+}
