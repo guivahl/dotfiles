@@ -63,6 +63,7 @@ function macos_install() {
   brew_install coreutils
   
   brew_install node
+  brew_install elixir
   
   brew_install spotify --cask
   brew_install visual-studio-code --cask
